@@ -1,19 +1,23 @@
-
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>For Ayana ❤️</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Inter:wght@400;600&family=Oswald:wght@700&display=swap" rel="stylesheet">
     <style>
         body {
             font-family: 'Inter', sans-serif;
             overflow-x: hidden;
-            background-color: #fff5f7;
+            background-color: #ffffff; /* Default plain white */
+            transition: background 1s ease;
         }
         .cursive {
             font-family: 'Dancing Script', cursive;
+        }
+        .nba-font {
+            font-family: 'Oswald', sans-serif;
         }
         .calendar-track {
             display: flex;
@@ -51,7 +55,7 @@
             100% { transform: translateY(-10vh) scale(1.5); opacity: 0; }
         }
         .gradient-bg {
-            background: linear-gradient(135deg, #fff1f2 0%, #ffe4e6 100%);
+            background: linear-gradient(135deg, #fff1f2 0%, #ffe4e6 100%) !important;
         }
         #no-btn {
             transition: all 0.2s ease;
@@ -72,48 +76,74 @@
             width: 100%;
             height: 100%;
         }
+        .answer-slide {
+            animation: slideDown 0.5s ease-out forwards;
+        }
+        @keyframes slideDown {
+            from { transform: translateY(-20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
     </style>
 </head>
-<body class="gradient-bg min-h-screen flex flex-col items-center justify-center">
+<body class="bg-white min-h-screen flex flex-col items-center justify-center">
 
     <div id="hearts-container"></div>
 
-    <!-- Welcome/Landing Screen -->
+    <!-- Landing Screen: NBA Quiz Theme -->
     <div id="welcome-screen" class="text-center p-6 z-10 transition-opacity duration-1000">
-        <h1 class="text-5xl md:text-7xl text-rose-600 cursive mb-8">Hi Ayana...</h1>
-        <div class="animate-bounce mb-8">
-            <svg class="w-16 h-16 mx-auto text-rose-400" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.707l-3-3a1 1 0 00-1.414 1.414L10.586 9H7a1 1 0 100 2h3.586l-1.293 1.293a1 1 0 101.414 1.414l3-3a1 1 0 000-1.414z" />
-            </svg>
-        </div>
-        <button onclick="enterExperience()" class="bg-rose-500 hover:bg-rose-600 text-white px-10 py-4 rounded-full text-xl font-bold shadow-2xl transition-all transform hover:scale-110">
-            Open My Valentine Message ❤️
+        <div class="mb-4 bg-blue-600 text-white nba-font text-2xl px-4 py-1 inline-block uppercase tracking-tighter">NBA Trivia Challenge</div>
+        <h1 class="text-5xl md:text-7xl font-black text-slate-900 uppercase nba-font mb-8">Can you score a <span class="text-blue-600">perfect</span> game?</h1>
+        <p class="text-gray-600 text-lg mb-8 max-w-md mx-auto">Hey Ayana, show me your basketball knowledge! Finish the quiz to unlock your message.</p>
+        <button onclick="enterExperience()" class="bg-blue-600 hover:bg-blue-700 text-white px-10 py-4 rounded-lg text-xl font-bold shadow-2xl transition-all transform hover:scale-105 nba-font uppercase tracking-wide">
+            Start the Quiz 🏀
         </button>
     </div>
 
-    <!-- Video Meme Screen -->
-    <div id="video-screen" class="hidden w-full max-w-2xl p-4 z-10 transition-opacity duration-1000">
-        <div class="bg-white p-4 rounded-2xl shadow-2xl">
-            <div class="video-container mb-6" id="video-wrapper">
-                <!-- Fallback iframe if the JS API fails -->
-                <iframe id="video-iframe" 
-                        src="https://www.youtube.com/embed/2VobiPkMJSY?enablejsapi=1&autoplay=0&controls=0&rel=0&origin=https://www.youtube.com" 
-                        frameborder="0" 
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                        allowfullscreen></iframe>
+    <!-- Quiz Screen -->
+    <div id="quiz-screen" class="hidden w-full max-w-2xl p-4 z-10 transition-opacity duration-1000">
+        <div class="bg-white p-6 rounded-2xl shadow-2xl border-t-8 border-blue-600">
+            <div id="quiz-header" class="flex justify-between items-center mb-4">
+                <span class="nba-font text-blue-600 font-bold" id="level-indicator">LEVEL 1/4</span>
+                <span class="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded uppercase">Live Action</span>
             </div>
-            <div class="text-center">
-                <p id="video-status" class="text-gray-500 italic mb-4">Wait for it...</p>
-                <button id="after-video-btn" onclick="showIntro()" class="bg-rose-500 hover:bg-rose-600 text-white px-8 py-3 rounded-full font-semibold shadow-lg transition-all mx-auto opacity-0 pointer-events-none transition-opacity duration-500">
-                    Continue to the real message ❤️
-                </button>
+            
+            <div class="video-container mb-6">
+                <div id="player"></div>
+            </div>
+
+            <div id="question-area" class="text-center">
+                <p id="quiz-question" class="text-xl font-bold text-gray-800 mb-4 nba-font uppercase"></p>
+                <div class="flex gap-2 justify-center">
+                    <input type="text" id="quiz-input" placeholder="Type answer here..." class="border-2 border-gray-200 rounded-lg px-4 py-2 w-full max-w-xs focus:border-blue-500 outline-none uppercase font-bold text-center">
+                    <button onclick="checkAnswer()" class="bg-blue-600 text-white px-6 py-2 rounded-lg font-bold hover:bg-blue-700 transition-colors">SUBMIT</button>
+                </div>
+                <p id="error-msg" class="text-red-500 text-sm mt-2 opacity-0">Incorrect! Try again.</p>
             </div>
         </div>
     </div>
 
-    <!-- Intro Section -->
+    <!-- Poem Reveal Screen -->
+    <div id="poem-screen" class="hidden text-center p-6 z-10 transition-opacity duration-1000">
+        <div class="bg-white/90 backdrop-blur-md p-10 rounded-3xl shadow-2xl border-2 border-rose-200 max-w-xl mx-auto">
+            <h2 class="text-2xl text-gray-500 nba-font uppercase tracking-widest mb-8">Quiz Completed!</h2>
+            
+            <div class="space-y-6 text-xl md:text-2xl text-gray-800 leading-relaxed">
+                <p class="answer-slide" style="animation-delay: 0.2s">In a time of <span class="font-bold text-rose-600 text-3xl nba-font">LOVE</span> and relationships</p>
+                <p class="answer-slide" style="animation-delay: 0.8s">With gifts such as <span class="font-bold text-rose-600 text-3xl nba-font">ROSE</span>s and chocolate</p>
+                <p class="answer-slide" style="animation-delay: 1.4s">A special <span class="font-bold text-rose-600 text-3xl nba-font">HOLIDAY</span> to many</p>
+                <p class="answer-slide" style="animation-delay: 2.0s">I ask you...</p>
+                <p class="answer-slide" style="animation-delay: 2.6s">Will you be my <span class="font-bold text-rose-600 text-3xl nba-font">VALENTINE</span>?</p>
+            </div>
+
+            <button onclick="showIntro()" class="mt-10 bg-rose-500 hover:bg-rose-600 text-white px-8 py-3 rounded-full font-semibold shadow-lg transition-all animate-pulse">
+                Click for the real message ❤️
+            </button>
+        </div>
+    </div>
+
+    <!-- Original Content Follows -->
     <div id="intro-screen" class="hidden text-center p-6 z-10 opacity-0 transition-opacity duration-1000">
-        <h1 class="text-4xl md:text-6xl text-rose-600 cursive mb-4">For real this time...</h1>
+        <h1 class="text-4xl md:text-6xl text-rose-600 cursive mb-4">Ayana, for real now...</h1>
         <p class="text-gray-600 text-lg md:text-xl max-w-md mx-auto mb-8">
             I've been counting down every single day since the very start of the year. Every moment leading up to this one...
         </p>
@@ -122,7 +152,6 @@
         </button>
     </div>
 
-    <!-- Calendar Section -->
     <div id="calendar-screen" class="hidden w-full overflow-hidden py-20 relative">
         <div class="calendar-track" id="calendar-track"></div>
         <div class="mt-12 text-center">
@@ -131,7 +160,6 @@
         </div>
     </div>
 
-    <!-- Proposal Section -->
     <div id="proposal-screen" class="hidden flex flex-col items-center text-center p-6 z-10 opacity-0 transition-opacity duration-1000">
         <div class="mb-6 relative">
             <svg class="w-32 h-32 text-rose-500 animate-pulse" fill="currentColor" viewBox="0 0 20 20">
@@ -151,63 +179,107 @@
         </div>
     </div>
 
-    <!-- Success Message -->
     <div id="success-screen" class="hidden text-center p-6 z-10 max-w-xl mx-auto">
         <h2 class="text-5xl text-rose-600 cursive mb-6">Yay! Best Valentine's ever!</h2>
-        
         <div class="bg-white/80 backdrop-blur-sm p-8 rounded-3xl shadow-xl border border-rose-100 text-center">
             <p class="text-xl text-gray-700 leading-relaxed">
                 I'm so happy, Ayana! Since I have to head up to <span class="font-bold text-rose-500">Massachusetts</span> on Friday to see my <span class="font-bold text-rose-500">grandma</span>...
             </p>
-            <p class="text-2xl text-rose-600 font-bold mt-6 mb-2 cursive">
-                Can we celebrate early on Thursday?
-            </p>
-            <p class="text-gray-600 italic">
-                I want Thursday to be our special Valentine's night before I head out. ❤️
-            </p>
+            <p class="text-2xl text-rose-600 font-bold mt-6 mb-2 cursive">Can we celebrate early on Thursday?</p>
+            <p class="text-gray-600 italic">I want Thursday to be our special Valentine's night before I head out. ❤️</p>
         </div>
-        
         <div class="mt-8 text-6xl animate-bounce">🥰🌹🍫</div>
     </div>
 
     <script>
-        const welcomeScreen = document.getElementById('welcome-screen');
-        const videoScreen = document.getElementById('video-screen');
-        const introScreen = document.getElementById('intro-screen');
-        const calendarScreen = document.getElementById('calendar-screen');
-        const proposalScreen = document.getElementById('proposal-screen');
-        const successScreen = document.getElementById('success-screen');
-        const track = document.getElementById('calendar-track');
-        const afterVideoBtn = document.getElementById('after-video-btn');
+        const quizData = [
+            { videoId: 'fPeZ3cEPBDU', question: "Who dunked on Vince Carter? Kevin _____", answer: "LOVE" },
+            { videoId: '_Vzd1J8fEYo', question: "Who brought down the house? Derrick _____", answer: "ROSE" },
+            { videoId: 'f8JhgKo0mic', question: "Who got dunked on (of all people)? Jrue _____", answer: "HOLIDAY" },
+            { videoId: '2VobiPkMJSY', question: "Who took the shot (that was not the shot)? Denzel _____", answer: "VALENTINE" }
+        ];
+
+        let currentQuizIndex = 0;
+        let player;
+        let heartInterval;
+
+        // Load YouTube API
+        const tag = document.createElement('script');
+        tag.src = "https://www.youtube.com/iframe_api";
+        const firstScriptTag = document.getElementsByTagName('script')[0];
+        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+        function onYouTubeIframeAPIReady() {
+            loadLevel();
+        }
+
+        function loadLevel() {
+            const data = quizData[currentQuizIndex];
+            document.getElementById('level-indicator').innerText = `LEVEL ${currentQuizIndex + 1}/4`;
+            document.getElementById('quiz-question').innerText = data.question;
+            document.getElementById('quiz-input').value = '';
+            document.getElementById('error-msg').classList.add('opacity-0');
+
+            if (player) {
+                player.loadVideoById(data.videoId);
+            } else {
+                player = new YT.Player('player', {
+                    height: '360',
+                    width: '640',
+                    videoId: data.videoId,
+                    playerVars: { 'autoplay': 0, 'controls': 1, 'rel': 0 },
+                });
+            }
+        }
+
+        function checkAnswer() {
+            const input = document.getElementById('quiz-input').value.trim().toUpperCase();
+            if (input === quizData[currentQuizIndex].answer) {
+                currentQuizIndex++;
+                if (currentQuizIndex < quizData.length) {
+                    loadLevel();
+                } else {
+                    showPoem();
+                }
+            } else {
+                document.getElementById('error-msg').classList.remove('opacity-0');
+            }
+        }
+
+        function showPoem() {
+            document.getElementById('quiz-screen').classList.add('hidden');
+            document.getElementById('poem-screen').classList.remove('hidden');
+        }
 
         function enterExperience() {
-            welcomeScreen.classList.add('opacity-0');
+            document.getElementById('welcome-screen').classList.add('opacity-0');
             setTimeout(() => {
-                welcomeScreen.classList.add('hidden');
-                videoScreen.classList.remove('hidden');
-                
-                // Attempt to play the video by sending a postMessage to the iframe
-                const iframe = document.getElementById('video-iframe');
-                iframe.contentWindow.postMessage('{"event":"command","func":"playVideo","args":""}', '*');
-
-                // Safety Timer: Show the continue button after 5 seconds automatically
-                // This ensures Ayana can move forward even if the video fails to load/play
-                setTimeout(() => {
-                    afterVideoBtn.classList.remove('opacity-0', 'pointer-events-none');
-                }, 5000);
+                document.getElementById('welcome-screen').classList.add('hidden');
+                document.getElementById('quiz-screen').classList.remove('hidden');
+                if(player) player.playVideo();
             }, 1000);
+        }
+
+        function startHearts() {
+            if (heartInterval) return;
+            heartInterval = setInterval(createHeart, 400);
         }
 
         function showIntro() {
-            videoScreen.classList.add('opacity-0');
+            // Restore Valentine theme
+            document.body.classList.add('gradient-bg');
+            startHearts();
+
+            document.getElementById('poem-screen').classList.add('opacity-0');
             setTimeout(() => {
-                videoScreen.classList.add('hidden');
-                introScreen.classList.remove('hidden');
-                setTimeout(() => introScreen.classList.remove('opacity-0'), 100);
+                document.getElementById('poem-screen').classList.add('hidden');
+                document.getElementById('intro-screen').classList.remove('hidden');
+                setTimeout(() => document.getElementById('intro-screen').classList.remove('opacity-0'), 100);
             }, 1000);
         }
 
-        // Calendar Logic
+        // --- Original Calendar & Proposal Logic ---
+        const track = document.getElementById('calendar-track');
         const dates = [];
         for(let i=1; i<=31; i++) dates.push({ day: i, month: "January" });
         for(let i=1; i<=14; i++) dates.push({ day: i, month: "February" });
@@ -216,78 +288,59 @@
             const div = document.createElement('div');
             div.className = 'day-card';
             div.id = `day-${index}`;
-            
             let specialContent = '';
             if (d.month === "February" && d.day === 7) {
-                div.style.backgroundColor = '#fff1f2';
-                div.style.borderColor = '#fda4af';
-                specialContent = '<span class="text-[10px] font-bold text-rose-500 leading-tight mt-1">THE DAY<br>WE MET ✨</span>';
+                div.style.backgroundColor = '#fff1f2'; div.style.borderColor = '#fda4af';
+                specialContent = '<span class="text-[10px] font-bold text-rose-500 leading-tight mt-1 uppercase">The day<br>we met ✨</span>';
             } else if (d.month === "February" && d.day === 12) {
-                div.style.backgroundColor = '#f0f9ff';
-                div.style.borderColor = '#7dd3fc';
-                specialContent = '<span class="text-[10px] font-bold text-sky-600 leading-tight mt-1 underline">OUR DATE<br>NIGHT 🥂</span>';
+                div.style.backgroundColor = '#f0f9ff'; div.style.borderColor = '#7dd3fc';
+                specialContent = '<span class="text-[10px] font-bold text-sky-600 leading-tight mt-1 underline uppercase">Our Date<br>Night 🥂</span>';
             } else if (d.month === "February" && d.day === 14) {
                 specialContent = '<span class="text-rose-400 mt-1">❤️</span>';
             }
-
-            div.innerHTML = `
-                <span class="text-gray-400 text-[10px] font-bold uppercase">${d.month.substring(0,3)}</span>
-                <span class="text-4xl font-bold text-rose-600">${d.day}</span>
-                ${specialContent}
-            `;
+            div.innerHTML = `<span class="text-gray-400 text-[10px] font-bold uppercase">${d.month.substring(0,3)}</span><span class="text-4xl font-bold text-rose-600">${d.day}</span>${specialContent}`;
             track.appendChild(div);
         });
 
         function createHeart() {
             const container = document.getElementById('hearts-container');
             const heart = document.createElement('div');
-            heart.className = 'heart';
-            heart.innerHTML = '❤️';
+            heart.className = 'heart'; heart.innerHTML = '❤️';
             heart.style.left = Math.random() * 100 + 'vw';
             heart.style.fontSize = (Math.random() * 20 + 10) + 'px';
             heart.style.animationDuration = (Math.random() * 3 + 3) + 's';
             container.appendChild(heart);
             setTimeout(() => heart.remove(), 6000);
         }
-        setInterval(createHeart, 400);
 
         function startCountdown() {
-            introScreen.classList.add('opacity-0');
+            document.getElementById('intro-screen').classList.add('opacity-0');
             setTimeout(() => {
-                introScreen.classList.add('hidden');
-                calendarScreen.classList.remove('hidden');
+                document.getElementById('intro-screen').classList.add('hidden');
+                document.getElementById('calendar-screen').classList.remove('hidden');
                 runCarousel();
             }, 1000);
         }
 
         async function runCarousel() {
             const cardWidth = 160; 
-            const totalDays = dates.length;
-            const progressText = document.getElementById('scroll-progress');
-            const monthText = document.getElementById('current-month');
-
-            for (let i = 0; i < totalDays; i++) {
+            for (let i = 0; i < dates.length; i++) {
                 document.querySelectorAll('.day-card').forEach(c => c.classList.remove('active'));
                 const currentCard = document.getElementById(`day-${i}`);
                 if (currentCard) currentCard.classList.add('active');
-
-                progressText.innerText = `${String(i + 1).padStart(2, '0')} / 45`;
-                monthText.innerText = dates[i].month;
-
+                document.getElementById('scroll-progress').innerText = `${String(i + 1).padStart(2, '0')} / 45`;
+                document.getElementById('current-month').innerText = dates[i].month;
                 const offset = (window.innerWidth / 2) - (i * cardWidth) - (cardWidth / 2);
                 track.style.transform = `translateX(${offset}px)`;
-
                 let delay = 60;
                 if (i > 30) delay = 180; 
                 if (i === 36 || i === 41 || i === 44) delay = 1500; 
-                
                 await new Promise(r => setTimeout(r, delay));
             }
-
             setTimeout(() => {
-                calendarScreen.classList.add('hidden');
-                proposalScreen.classList.remove('hidden');
-                setTimeout(() => proposalScreen.classList.remove('opacity-0'), 100);
+                document.getElementById('calendar-screen').classList.add('hidden');
+                document.getElementById('proposal-screen').classList.remove('hidden');
+                setTimeout(() => document.getElementById('proposal-screen').classList.remove('opacity-0'), 100);
             }, 1000);
         }
 
@@ -295,19 +348,22 @@
             const btn = document.getElementById('no-btn');
             const x = Math.random() * (window.innerWidth - btn.offsetWidth);
             const y = Math.random() * (window.innerHeight - btn.offsetHeight);
-            btn.style.position = 'fixed';
-            btn.style.left = x + 'px';
-            btn.style.top = y + 'px';
+            btn.style.position = 'fixed'; btn.style.left = x + 'px'; btn.style.top = y + 'px';
             const yesBtn = document.getElementById('yes-btn');
             const currentScale = parseFloat(yesBtn.style.transform.replace('scale(', '').replace(')', '')) || 1;
             yesBtn.style.transform = `scale(${currentScale + 0.15})`;
         }
 
         function accept() {
-            proposalScreen.classList.add('hidden');
-            successScreen.classList.remove('hidden');
+            document.getElementById('proposal-screen').classList.add('hidden');
+            document.getElementById('success-screen').classList.remove('hidden');
             for(let i=0; i<60; i++) setTimeout(createHeart, i * 40);
         }
+
+        // Allow Enter key for quiz
+        document.getElementById('quiz-input').addEventListener('keypress', (e) => {
+            if(e.key === 'Enter') checkAnswer();
+        });
     </script>
 </body>
 </html>
