@@ -10,7 +10,7 @@
         body {
             font-family: 'Inter', sans-serif;
             overflow-x: hidden;
-            background-color: #ffffff; /* Default plain white */
+            background-color: #ffffff;
             transition: background 1s ease;
         }
         .cursive {
@@ -57,12 +57,9 @@
         .gradient-bg {
             background: linear-gradient(135deg, #fff1f2 0%, #ffe4e6 100%) !important;
         }
-        #no-btn {
-            transition: all 0.2s ease;
-        }
         .video-container {
             position: relative;
-            padding-bottom: 56.25%; /* 16:9 */
+            padding-bottom: 56.25%;
             height: 0;
             overflow: hidden;
             max-width: 100%;
@@ -82,6 +79,10 @@
         @keyframes slideDown {
             from { transform: translateY(-20px); opacity: 0; }
             to { transform: translateY(0); opacity: 1; }
+        }
+        .no-button {
+            transition: all 0.2s ease;
+            z-index: 100;
         }
     </style>
 </head>
@@ -127,31 +128,26 @@
         <div class="bg-white/90 backdrop-blur-md p-10 rounded-3xl shadow-2xl border-2 border-rose-200 max-w-xl mx-auto">
             <h2 class="text-2xl text-gray-500 nba-font uppercase tracking-widest mb-8">Quiz Completed!</h2>
             
-            <div class="space-y-6 text-xl md:text-2xl text-gray-800 leading-relaxed">
+            <div class="space-y-6 text-xl md:text-2xl text-gray-800 leading-relaxed mb-10">
                 <p class="answer-slide" style="animation-delay: 0.2s">In a time of <span class="font-bold text-rose-600 text-3xl nba-font">LOVE</span> and relationships</p>
                 <p class="answer-slide" style="animation-delay: 0.8s">With gifts such as <span class="font-bold text-rose-600 text-3xl nba-font">ROSE</span>s and chocolate</p>
                 <p class="answer-slide" style="animation-delay: 1.4s">A special <span class="font-bold text-rose-600 text-3xl nba-font">HOLIDAY</span> to many</p>
                 <p class="answer-slide" style="animation-delay: 2.0s">I ask you...</p>
-                <p class="answer-slide" style="animation-delay: 2.6s">Will you be my <span class="font-bold text-rose-600 text-3xl nba-font">VALENTINE</span>?</p>
+                <p class="answer-slide" style="animation-delay: 2.6s">Will you be my <span class="font-bold text-rose-600 text-3xl nba-font uppercase">Valentine?</span></p>
             </div>
 
-            <button onclick="showIntro()" class="mt-10 bg-rose-500 hover:bg-rose-600 text-white px-8 py-3 rounded-full font-semibold shadow-lg transition-all animate-pulse">
-                Click for the real message ❤️
-            </button>
+            <div class="flex flex-col sm:flex-row gap-6 items-center justify-center w-full mt-8">
+                <button onclick="transitionToCountdown()" id="yes-btn-poem" class="w-full sm:w-auto bg-rose-500 hover:bg-rose-600 text-white px-12 py-4 rounded-full text-xl font-bold shadow-xl transition-all transform hover:scale-110">
+                    YES!
+                </button>
+                <button onmouseover="dodge('no-btn-poem')" ontouchstart="dodge('no-btn-poem')" id="no-btn-poem" class="no-button w-full sm:w-auto bg-gray-200 text-gray-500 px-8 py-4 rounded-full text-lg font-semibold">
+                    No
+                </button>
+            </div>
         </div>
     </div>
 
-    <!-- Original Content Follows -->
-    <div id="intro-screen" class="hidden text-center p-6 z-10 opacity-0 transition-opacity duration-1000">
-        <h1 class="text-4xl md:text-6xl text-rose-600 cursive mb-4">Ayana, for real now...</h1>
-        <p class="text-gray-600 text-lg md:text-xl max-w-md mx-auto mb-8">
-            I've been counting down every single day since the very start of the year. Every moment leading up to this one...
-        </p>
-        <button onclick="startCountdown()" class="bg-rose-500 hover:bg-rose-600 text-white px-8 py-3 rounded-full font-semibold shadow-lg transition-all transform hover:scale-105">
-            See the countdown ❤️
-        </button>
-    </div>
-
+    <!-- Calendar Section -->
     <div id="calendar-screen" class="hidden w-full overflow-hidden py-20 relative">
         <div class="calendar-track" id="calendar-track"></div>
         <div class="mt-12 text-center">
@@ -160,6 +156,7 @@
         </div>
     </div>
 
+    <!-- Final Proposal Screen -->
     <div id="proposal-screen" class="hidden flex flex-col items-center text-center p-6 z-10 opacity-0 transition-opacity duration-1000">
         <div class="mb-6 relative">
             <svg class="w-32 h-32 text-rose-500 animate-pulse" fill="currentColor" viewBox="0 0 20 20">
@@ -167,28 +164,43 @@
             </svg>
         </div>
         <h2 class="text-5xl md:text-7xl text-rose-600 cursive mb-6">Ayana,</h2>
-        <h3 class="text-2xl md:text-4xl font-bold text-gray-800 mb-12">Will you be my Valentine?</h3>
+        <h3 class="text-2xl md:text-4xl font-bold text-gray-800 mb-12 uppercase nba-font">Will you be my Valentine?</h3>
         
-        <div class="flex flex-col sm:flex-row gap-6 items-center justify-center w-full max-w-sm">
-            <button onclick="accept()" id="yes-btn" class="w-full sm:w-auto bg-rose-500 hover:bg-rose-600 text-white px-12 py-4 rounded-full text-xl font-bold shadow-xl transition-all transform hover:scale-110">
+        <div class="flex flex-col sm:flex-row gap-6 items-center justify-center w-full max-sm">
+            <button onclick="acceptProposal()" id="yes-btn-final" class="w-full sm:w-auto bg-rose-500 hover:bg-rose-600 text-white px-12 py-4 rounded-full text-xl font-bold shadow-xl transition-all transform hover:scale-110">
                 YES!
             </button>
-            <button onmouseover="dodge()" id="no-btn" class="w-full sm:w-auto bg-gray-200 text-gray-500 px-8 py-4 rounded-full text-lg font-semibold">
+            <button onmouseover="dodge('no-btn-final')" ontouchstart="dodge('no-btn-final')" id="no-btn-final" class="no-button w-full sm:w-auto bg-gray-200 text-gray-500 px-8 py-4 rounded-full text-lg font-semibold">
                 No
             </button>
         </div>
     </div>
 
-    <div id="success-screen" class="hidden text-center p-6 z-10 max-w-xl mx-auto">
+    <!-- Thursday Confirmation Screen -->
+    <div id="success-screen" class="hidden text-center p-6 z-10 max-w-xl mx-auto transition-opacity duration-1000">
         <h2 class="text-5xl text-rose-600 cursive mb-6">Yay! Best Valentine's ever!</h2>
-        <div class="bg-white/80 backdrop-blur-sm p-8 rounded-3xl shadow-xl border border-rose-100 text-center">
+        <div class="bg-white/80 backdrop-blur-sm p-8 rounded-3xl shadow-xl border border-rose-100 text-center mb-8">
             <p class="text-xl text-gray-700 leading-relaxed">
                 I'm so happy, Ayana! Since I have to head up to <span class="font-bold text-rose-500">Massachusetts</span> on Friday to see my <span class="font-bold text-rose-500">grandma</span>...
             </p>
-            <p class="text-2xl text-rose-600 font-bold mt-6 mb-2 cursive">Can we celebrate early on Thursday?</p>
-            <p class="text-gray-600 italic">I want Thursday to be our special Valentine's night before I head out. ❤️</p>
+            <p class="text-2xl text-rose-600 font-bold mt-6 mb-6 cursive">Can we celebrate early on Thursday?</p>
+            
+            <div class="flex flex-col sm:flex-row gap-4 items-center justify-center w-full">
+                <button onclick="confirmDate()" id="yes-btn-thursday" class="w-full sm:w-auto bg-rose-500 hover:bg-rose-600 text-white px-8 py-3 rounded-full font-bold shadow-lg transition-all transform hover:scale-105">
+                    Yes, absolutely!
+                </button>
+                <button onmouseover="dodge('no-btn-thursday')" ontouchstart="dodge('no-btn-thursday')" id="no-btn-thursday" class="no-button w-full sm:w-auto bg-gray-100 text-gray-400 px-6 py-3 rounded-full font-semibold">
+                    Not Thursday
+                </button>
+            </div>
         </div>
-        <div class="mt-8 text-6xl animate-bounce">🥰🌹🍫</div>
+    </div>
+
+    <!-- Final Confirmed Screen -->
+    <div id="confirmed-screen" class="hidden text-center p-6 z-10 max-w-xl mx-auto">
+        <h2 class="text-6xl text-rose-600 cursive mb-6">It's a Date!</h2>
+        <p class="text-xl text-gray-700">See you on Thursday for our special night, Ayana. ❤️</p>
+        <div class="mt-8 text-7xl animate-bounce">🌹✨🥰</div>
     </div>
 
     <script>
@@ -265,20 +277,60 @@
             heartInterval = setInterval(createHeart, 400);
         }
 
-        function showIntro() {
+        function transitionToCountdown() {
             // Restore Valentine theme
             document.body.classList.add('gradient-bg');
             startHearts();
-
+            
+            // Hide poem and show calendar
             document.getElementById('poem-screen').classList.add('opacity-0');
             setTimeout(() => {
                 document.getElementById('poem-screen').classList.add('hidden');
-                document.getElementById('intro-screen').classList.remove('hidden');
-                setTimeout(() => document.getElementById('intro-screen').classList.remove('opacity-0'), 100);
+                document.getElementById('calendar-screen').classList.remove('hidden');
+                runCarousel();
             }, 1000);
         }
 
-        // --- Original Calendar & Proposal Logic ---
+        function dodge(id) {
+            const btn = document.getElementById(id);
+            const maxX = window.innerWidth - btn.offsetWidth;
+            const maxY = window.innerHeight - btn.offsetHeight;
+            
+            const newX = Math.max(20, Math.min(maxX - 20, Math.random() * maxX));
+            const newY = Math.max(20, Math.min(maxY - 20, Math.random() * maxY));
+            
+            btn.style.position = 'fixed';
+            btn.style.left = newX + 'px';
+            btn.style.top = newY + 'px';
+
+            let yesBtn;
+            if(id === 'no-btn-poem') yesBtn = document.getElementById('yes-btn-poem');
+            else if(id === 'no-btn-final') yesBtn = document.getElementById('yes-btn-final');
+            else if(id === 'no-btn-thursday') yesBtn = document.getElementById('yes-btn-thursday');
+
+            if(yesBtn) {
+                const currentScale = parseFloat(yesBtn.style.transform.replace('scale(', '').replace(')', '')) || 1;
+                yesBtn.style.transform = `scale(${currentScale + 0.1})`;
+            }
+        }
+
+        function acceptProposal() {
+            document.getElementById('proposal-screen').classList.add('opacity-0');
+            setTimeout(() => {
+                document.getElementById('proposal-screen').classList.add('hidden');
+                document.getElementById('success-screen').classList.remove('hidden');
+            }, 1000);
+        }
+
+        function confirmDate() {
+            document.getElementById('success-screen').classList.add('opacity-0');
+            setTimeout(() => {
+                document.getElementById('success-screen').classList.add('hidden');
+                document.getElementById('confirmed-screen').classList.remove('hidden');
+                for(let i=0; i<60; i++) setTimeout(createHeart, i * 40);
+            }, 1000);
+        }
+
         const track = document.getElementById('calendar-track');
         const dates = [];
         for(let i=1; i<=31; i++) dates.push({ day: i, month: "January" });
@@ -313,15 +365,6 @@
             setTimeout(() => heart.remove(), 6000);
         }
 
-        function startCountdown() {
-            document.getElementById('intro-screen').classList.add('opacity-0');
-            setTimeout(() => {
-                document.getElementById('intro-screen').classList.add('hidden');
-                document.getElementById('calendar-screen').classList.remove('hidden');
-                runCarousel();
-            }, 1000);
-        }
-
         async function runCarousel() {
             const cardWidth = 160; 
             for (let i = 0; i < dates.length; i++) {
@@ -344,23 +387,6 @@
             }, 1000);
         }
 
-        function dodge() {
-            const btn = document.getElementById('no-btn');
-            const x = Math.random() * (window.innerWidth - btn.offsetWidth);
-            const y = Math.random() * (window.innerHeight - btn.offsetHeight);
-            btn.style.position = 'fixed'; btn.style.left = x + 'px'; btn.style.top = y + 'px';
-            const yesBtn = document.getElementById('yes-btn');
-            const currentScale = parseFloat(yesBtn.style.transform.replace('scale(', '').replace(')', '')) || 1;
-            yesBtn.style.transform = `scale(${currentScale + 0.15})`;
-        }
-
-        function accept() {
-            document.getElementById('proposal-screen').classList.add('hidden');
-            document.getElementById('success-screen').classList.remove('hidden');
-            for(let i=0; i<60; i++) setTimeout(createHeart, i * 40);
-        }
-
-        // Allow Enter key for quiz
         document.getElementById('quiz-input').addEventListener('keypress', (e) => {
             if(e.key === 'Enter') checkAnswer();
         });
