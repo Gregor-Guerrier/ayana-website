@@ -1,0 +1,313 @@
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>For Ayana ❤️</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+            background-color: #fff5f7;
+        }
+        .cursive {
+            font-family: 'Dancing Script', cursive;
+        }
+        .calendar-track {
+            display: flex;
+            transition: transform 0.1s linear;
+        }
+        .day-card {
+            min-width: 140px;
+            height: 180px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin: 0 10px;
+            border-radius: 1rem;
+            background: white;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            border: 2px solid transparent;
+            text-align: center;
+            padding: 10px;
+        }
+        .day-card.active {
+            border-color: #fb7185;
+            transform: scale(1.1);
+            box-shadow: 0 10px 25px rgba(251, 113, 133, 0.2);
+        }
+        .heart {
+            position: fixed;
+            pointer-events: none;
+            z-index: 50;
+            animation: float 6s ease-in infinite;
+        }
+        @keyframes float {
+            0% { transform: translateY(100vh) scale(0); opacity: 0; }
+            50% { opacity: 0.8; }
+            100% { transform: translateY(-10vh) scale(1.5); opacity: 0; }
+        }
+        .gradient-bg {
+            background: linear-gradient(135deg, #fff1f2 0%, #ffe4e6 100%);
+        }
+        #no-btn {
+            transition: all 0.2s ease;
+        }
+        .video-container {
+            position: relative;
+            padding-bottom: 56.25%; /* 16:9 */
+            height: 0;
+            overflow: hidden;
+            max-width: 100%;
+            background: #000;
+            border-radius: 1rem;
+        }
+        .video-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+<body class="gradient-bg min-h-screen flex flex-col items-center justify-center">
+
+    <div id="hearts-container"></div>
+
+    <!-- Welcome/Landing Screen -->
+    <div id="welcome-screen" class="text-center p-6 z-10 transition-opacity duration-1000">
+        <h1 class="text-5xl md:text-7xl text-rose-600 cursive mb-8">Hi Ayana...</h1>
+        <div class="animate-bounce mb-8">
+            <svg class="w-16 h-16 mx-auto text-rose-400" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.707l-3-3a1 1 0 00-1.414 1.414L10.586 9H7a1 1 0 100 2h3.586l-1.293 1.293a1 1 0 101.414 1.414l3-3a1 1 0 000-1.414z" />
+            </svg>
+        </div>
+        <button onclick="enterExperience()" class="bg-rose-500 hover:bg-rose-600 text-white px-10 py-4 rounded-full text-xl font-bold shadow-2xl transition-all transform hover:scale-110">
+            Open My Valentine Message ❤️
+        </button>
+    </div>
+
+    <!-- Video Meme Screen -->
+    <div id="video-screen" class="hidden w-full max-w-2xl p-4 z-10 transition-opacity duration-1000">
+        <div class="bg-white p-4 rounded-2xl shadow-2xl">
+            <div class="video-container mb-6" id="video-wrapper">
+                <!-- Fallback iframe if the JS API fails -->
+                <iframe id="video-iframe" 
+                        src="https://www.youtube.com/embed/2VobiPkMJSY?enablejsapi=1&autoplay=0&controls=0&rel=0&origin=https://www.youtube.com" 
+                        frameborder="0" 
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                        allowfullscreen></iframe>
+            </div>
+            <div class="text-center">
+                <p id="video-status" class="text-gray-500 italic mb-4">Wait for it...</p>
+                <button id="after-video-btn" onclick="showIntro()" class="bg-rose-500 hover:bg-rose-600 text-white px-8 py-3 rounded-full font-semibold shadow-lg transition-all mx-auto opacity-0 pointer-events-none transition-opacity duration-500">
+                    Continue to the real message ❤️
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Intro Section -->
+    <div id="intro-screen" class="hidden text-center p-6 z-10 opacity-0 transition-opacity duration-1000">
+        <h1 class="text-4xl md:text-6xl text-rose-600 cursive mb-4">For real this time...</h1>
+        <p class="text-gray-600 text-lg md:text-xl max-w-md mx-auto mb-8">
+            I've been counting down every single day since the very start of the year. Every moment leading up to this one...
+        </p>
+        <button onclick="startCountdown()" class="bg-rose-500 hover:bg-rose-600 text-white px-8 py-3 rounded-full font-semibold shadow-lg transition-all transform hover:scale-105">
+            See the countdown ❤️
+        </button>
+    </div>
+
+    <!-- Calendar Section -->
+    <div id="calendar-screen" class="hidden w-full overflow-hidden py-20 relative">
+        <div class="calendar-track" id="calendar-track"></div>
+        <div class="mt-12 text-center">
+            <p id="current-month" class="text-2xl font-bold text-rose-500 uppercase tracking-widest">January</p>
+            <div id="scroll-progress" class="text-rose-300 mt-2 text-sm font-mono">01 / 45</div>
+        </div>
+    </div>
+
+    <!-- Proposal Section -->
+    <div id="proposal-screen" class="hidden flex flex-col items-center text-center p-6 z-10 opacity-0 transition-opacity duration-1000">
+        <div class="mb-6 relative">
+            <svg class="w-32 h-32 text-rose-500 animate-pulse" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" />
+            </svg>
+        </div>
+        <h2 class="text-5xl md:text-7xl text-rose-600 cursive mb-6">Ayana,</h2>
+        <h3 class="text-2xl md:text-4xl font-bold text-gray-800 mb-12">Will you be my Valentine?</h3>
+        
+        <div class="flex flex-col sm:flex-row gap-6 items-center justify-center w-full max-w-sm">
+            <button onclick="accept()" id="yes-btn" class="w-full sm:w-auto bg-rose-500 hover:bg-rose-600 text-white px-12 py-4 rounded-full text-xl font-bold shadow-xl transition-all transform hover:scale-110">
+                YES!
+            </button>
+            <button onmouseover="dodge()" id="no-btn" class="w-full sm:w-auto bg-gray-200 text-gray-500 px-8 py-4 rounded-full text-lg font-semibold">
+                No
+            </button>
+        </div>
+    </div>
+
+    <!-- Success Message -->
+    <div id="success-screen" class="hidden text-center p-6 z-10 max-w-xl mx-auto">
+        <h2 class="text-5xl text-rose-600 cursive mb-6">Yay! Best Valentine's ever!</h2>
+        
+        <div class="bg-white/80 backdrop-blur-sm p-8 rounded-3xl shadow-xl border border-rose-100 text-center">
+            <p class="text-xl text-gray-700 leading-relaxed">
+                I'm so happy, Ayana! Since I have to head up to <span class="font-bold text-rose-500">Massachusetts</span> on Friday to see my <span class="font-bold text-rose-500">grandma</span>...
+            </p>
+            <p class="text-2xl text-rose-600 font-bold mt-6 mb-2 cursive">
+                Can we celebrate early on Thursday?
+            </p>
+            <p class="text-gray-600 italic">
+                I want Thursday to be our special Valentine's night before I head out. ❤️
+            </p>
+        </div>
+        
+        <div class="mt-8 text-6xl animate-bounce">🥰🌹🍫</div>
+    </div>
+
+    <script>
+        const welcomeScreen = document.getElementById('welcome-screen');
+        const videoScreen = document.getElementById('video-screen');
+        const introScreen = document.getElementById('intro-screen');
+        const calendarScreen = document.getElementById('calendar-screen');
+        const proposalScreen = document.getElementById('proposal-screen');
+        const successScreen = document.getElementById('success-screen');
+        const track = document.getElementById('calendar-track');
+        const afterVideoBtn = document.getElementById('after-video-btn');
+
+        function enterExperience() {
+            welcomeScreen.classList.add('opacity-0');
+            setTimeout(() => {
+                welcomeScreen.classList.add('hidden');
+                videoScreen.classList.remove('hidden');
+                
+                // Attempt to play the video by sending a postMessage to the iframe
+                const iframe = document.getElementById('video-iframe');
+                iframe.contentWindow.postMessage('{"event":"command","func":"playVideo","args":""}', '*');
+
+                // Safety Timer: Show the continue button after 5 seconds automatically
+                // This ensures Ayana can move forward even if the video fails to load/play
+                setTimeout(() => {
+                    afterVideoBtn.classList.remove('opacity-0', 'pointer-events-none');
+                }, 5000);
+            }, 1000);
+        }
+
+        function showIntro() {
+            videoScreen.classList.add('opacity-0');
+            setTimeout(() => {
+                videoScreen.classList.add('hidden');
+                introScreen.classList.remove('hidden');
+                setTimeout(() => introScreen.classList.remove('opacity-0'), 100);
+            }, 1000);
+        }
+
+        // Calendar Logic
+        const dates = [];
+        for(let i=1; i<=31; i++) dates.push({ day: i, month: "January" });
+        for(let i=1; i<=14; i++) dates.push({ day: i, month: "February" });
+
+        dates.forEach((d, index) => {
+            const div = document.createElement('div');
+            div.className = 'day-card';
+            div.id = `day-${index}`;
+            
+            let specialContent = '';
+            if (d.month === "February" && d.day === 7) {
+                div.style.backgroundColor = '#fff1f2';
+                div.style.borderColor = '#fda4af';
+                specialContent = '<span class="text-[10px] font-bold text-rose-500 leading-tight mt-1">THE DAY<br>WE MET ✨</span>';
+            } else if (d.month === "February" && d.day === 12) {
+                div.style.backgroundColor = '#f0f9ff';
+                div.style.borderColor = '#7dd3fc';
+                specialContent = '<span class="text-[10px] font-bold text-sky-600 leading-tight mt-1 underline">OUR DATE<br>NIGHT 🥂</span>';
+            } else if (d.month === "February" && d.day === 14) {
+                specialContent = '<span class="text-rose-400 mt-1">❤️</span>';
+            }
+
+            div.innerHTML = `
+                <span class="text-gray-400 text-[10px] font-bold uppercase">${d.month.substring(0,3)}</span>
+                <span class="text-4xl font-bold text-rose-600">${d.day}</span>
+                ${specialContent}
+            `;
+            track.appendChild(div);
+        });
+
+        function createHeart() {
+            const container = document.getElementById('hearts-container');
+            const heart = document.createElement('div');
+            heart.className = 'heart';
+            heart.innerHTML = '❤️';
+            heart.style.left = Math.random() * 100 + 'vw';
+            heart.style.fontSize = (Math.random() * 20 + 10) + 'px';
+            heart.style.animationDuration = (Math.random() * 3 + 3) + 's';
+            container.appendChild(heart);
+            setTimeout(() => heart.remove(), 6000);
+        }
+        setInterval(createHeart, 400);
+
+        function startCountdown() {
+            introScreen.classList.add('opacity-0');
+            setTimeout(() => {
+                introScreen.classList.add('hidden');
+                calendarScreen.classList.remove('hidden');
+                runCarousel();
+            }, 1000);
+        }
+
+        async function runCarousel() {
+            const cardWidth = 160; 
+            const totalDays = dates.length;
+            const progressText = document.getElementById('scroll-progress');
+            const monthText = document.getElementById('current-month');
+
+            for (let i = 0; i < totalDays; i++) {
+                document.querySelectorAll('.day-card').forEach(c => c.classList.remove('active'));
+                const currentCard = document.getElementById(`day-${i}`);
+                if (currentCard) currentCard.classList.add('active');
+
+                progressText.innerText = `${String(i + 1).padStart(2, '0')} / 45`;
+                monthText.innerText = dates[i].month;
+
+                const offset = (window.innerWidth / 2) - (i * cardWidth) - (cardWidth / 2);
+                track.style.transform = `translateX(${offset}px)`;
+
+                let delay = 60;
+                if (i > 30) delay = 180; 
+                if (i === 36 || i === 41 || i === 44) delay = 1500; 
+                
+                await new Promise(r => setTimeout(r, delay));
+            }
+
+            setTimeout(() => {
+                calendarScreen.classList.add('hidden');
+                proposalScreen.classList.remove('hidden');
+                setTimeout(() => proposalScreen.classList.remove('opacity-0'), 100);
+            }, 1000);
+        }
+
+        function dodge() {
+            const btn = document.getElementById('no-btn');
+            const x = Math.random() * (window.innerWidth - btn.offsetWidth);
+            const y = Math.random() * (window.innerHeight - btn.offsetHeight);
+            btn.style.position = 'fixed';
+            btn.style.left = x + 'px';
+            btn.style.top = y + 'px';
+            const yesBtn = document.getElementById('yes-btn');
+            const currentScale = parseFloat(yesBtn.style.transform.replace('scale(', '').replace(')', '')) || 1;
+            yesBtn.style.transform = `scale(${currentScale + 0.15})`;
+        }
+
+        function accept() {
+            proposalScreen.classList.add('hidden');
+            successScreen.classList.remove('hidden');
+            for(let i=0; i<60; i++) setTimeout(createHeart, i * 40);
+        }
+    </script>
+</body>
+</html>
