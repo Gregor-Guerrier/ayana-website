@@ -1,0 +1,1075 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Nebula Strike: Tactical Defense</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+
+        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+        
+
+        body {
+
+            background-color: #020205;
+
+            color: #fff;
+
+            font-family: 'Press+Start+2P', cursive;
+
+            margin: 0;
+
+            overflow: hidden;
+
+            touch-action: none;
+
+        }
+
+
+
+        canvas {
+
+            display: block;
+
+            image-rendering: pixelated;
+
+        }
+
+
+
+        .pixel-border {
+
+            border: 4px solid #444;
+
+            background: rgba(20, 20, 30, 0.95);
+
+        }
+
+
+
+        .btn-action {
+
+            background: #3b82f6;
+
+            transition: all 0.2s;
+
+            cursor: pointer;
+
+            border-bottom: 4px solid #1d4ed8;
+
+        }
+
+        .btn-action:active {
+
+            transform: translateY(2px);
+
+            border-bottom-width: 2px;
+
+        }
+
+
+
+        .proposal-text {
+
+            text-shadow: 0 0 10px #ec4899;
+
+        }
+
+
+
+        .upgrade-grid {
+
+            display: grid;
+
+            grid-template-columns: 20px 1fr;
+
+            gap: 8px;
+
+            align-items: center;
+
+            text-align: left;
+
+        }
+
+    </style>
+
+</head>
+
+<body class="flex flex-col items-center justify-center min-h-screen">
+
+
+
+    <div id="game-container" class="relative">
+
+        <!-- Main Menu / Instructions -->
+
+        <div id="menu-overlay" class="absolute inset-0 z-10 flex flex-col items-center justify-center bg-black">
+
+            <h1 class="text-3xl text-blue-500 mb-2 text-center px-4 tracking-tighter">NEBULA STRIKE</h1>
+
+            <p class="text-[8px] text-gray-500 mb-6">TACTICAL DEFENSE SIM V.1.05</p>
+
+            
+
+            <div class="pixel-border p-6 flex flex-col items-center max-w-md">
+
+                <div class="grid grid-cols-2 gap-4 mb-6 w-full">
+
+                    <div class="text-[7px] border border-gray-700 p-2 text-center text-blue-300">L-STICK: MOVE</div>
+
+                    <div class="text-[7px] border border-gray-700 p-2 text-center text-blue-300">BUTTON A: FIRE</div>
+
+                </div>
+
+
+
+                <p class="text-[8px] mb-4 text-gray-400 border-b border-gray-700 pb-1 w-full text-center uppercase tracking-widest">Tactical Modules</p>
+
+                
+
+                <div class="upgrade-grid mb-8 w-full px-2">
+
+                    <div class="w-4 h-4 bg-blue-600 border border-white text-[8px] flex items-center justify-center">S</div>
+
+                    <p class="text-[7px] text-blue-200">THRUSTER OVERDRIVE: INCREASE SHIP SPEED</p>
+
+                    
+
+                    <div class="w-4 h-4 bg-yellow-500 border border-white text-[8px] flex items-center justify-center text-black">F</div>
+
+                    <p class="text-[7px] text-yellow-100">RAPID CALIBRATION: INCREASE FIRE RATE</p>
+
+                    
+
+                    <div class="w-4 h-4 bg-green-600 border border-white text-[8px] flex items-center justify-center">M</div>
+
+                    <p class="text-[7px] text-green-100">ARRAY SPREAD: ADD EXTRA PROJECTILES</p>
+
+                    
+
+                    <div class="w-4 h-4 bg-red-600 border border-white text-[8px] flex items-center justify-center">H</div>
+
+                    <p class="text-[7px] text-red-100">HULL REPAIR: RESTORE INTEGRITY (HEART)</p>
+
+                </div>
+
+
+
+                <button id="start-btn" class="btn-action text-white px-10 py-4 text-xs w-full">INITIALIZE SIM</button>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- The Reveal (Hidden) -->
+
+        <div id="proposal-overlay" class="hidden absolute inset-0 z-20 flex flex-col items-center justify-center bg-black bg-opacity-95">
+
+            <div class="mb-8 animate-bounce">
+
+                <svg width="80" height="80" viewBox="0 0 24 24" fill="#ec4899">
+
+                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+
+                </svg>
+
+            </div>
+
+            <h2 class="proposal-text text-xl text-center mb-12 px-8 leading-loose text-pink-400">AYANA,<br>WILL YOU BE MY GIRLFRIEND?</h2>
+
+            <div class="flex flex-col gap-4 w-full px-12">
+
+                <button onclick="celebrate()" class="bg-green-500 hover:bg-green-400 text-black py-4 text-xs rounded shadow-lg">YES</button>
+
+                <button onclick="celebrate()" class="bg-blue-500 hover:bg-blue-400 text-black py-4 text-xs rounded shadow-lg">YES (IN BLUE)</button>
+
+            </div>
+
+        </div>
+
+
+
+        <canvas id="gameCanvas"></canvas>
+
+        
+
+        <div id="game-ui" class="absolute top-4 left-4 right-4 flex justify-between pointer-events-none opacity-50">
+
+            <div id="score-text" class="text-[8px]">DATA: 0000</div>
+
+            <div id="level-text" class="text-[8px]">SECTOR: 1</div>
+
+            <div id="lives-container" class="flex gap-1 text-blue-500">
+
+                <div class="w-2 h-2 bg-blue-500"></div>
+
+                <div class="w-2 h-2 bg-blue-500"></div>
+
+                <div class="w-2 h-2 bg-blue-500"></div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    <script>
+
+        const canvas = document.getElementById('gameCanvas');
+
+        const ctx = canvas.getContext('2d');
+
+        const menuOverlay = document.getElementById('menu-overlay');
+
+        const proposalOverlay = document.getElementById('proposal-overlay');
+
+        const startBtn = document.getElementById('start-btn');
+
+        const scoreText = document.getElementById('score-text');
+
+        const levelText = document.getElementById('level-text');
+
+        const livesContainer = document.getElementById('lives-container');
+
+
+
+        function resize() {
+
+            canvas.width = Math.min(window.innerWidth, 800);
+
+            canvas.height = Math.min(window.innerHeight - 40, 600);
+
+        }
+
+        window.addEventListener('resize', resize);
+
+        resize();
+
+
+
+        let gameState = 'MENU';
+
+        let score = 0;
+
+        let sector = 1;
+
+        let lives = 3;
+
+        let deathCount = 0; 
+
+        let frameCount = 0;
+
+
+
+        const THEMES = {
+
+            1: { enemy: '#3b82f6', bullet: '#60a5fa' }, // Blue
+
+            2: { enemy: '#8b5cf6', bullet: '#a78bfa' }, // Purple
+
+            3: { enemy: '#ef4444', bullet: '#f87171' }, // Red
+
+            4: { enemy: '#fbbf24', bullet: '#fde68a' }, // Amber
+
+            BOSS: { enemy: '#ec4899', bullet: '#f472b6' } // Pink
+
+        };
+
+
+
+        const POWERUP_TYPES = [
+
+            { id: 'SPEED', color: '#3b82f6', label: 'S' }, 
+
+            { id: 'FIRE', color: '#facc15', label: 'F' },  
+
+            { id: 'MULTI', color: '#22c55e', label: 'M' },
+
+            { id: 'HEALTH', color: '#ef4444', label: 'H' }
+
+        ];
+
+
+
+        const keys = {};
+
+        window.addEventListener('keydown', e => keys[e.code] = true);
+
+        window.addEventListener('keyup', e => keys[e.code] = false);
+
+
+
+        function getGamepadInput() {
+
+            const gps = navigator.getGamepads();
+
+            const gp = gps[0];
+
+            if (!gp) return null;
+
+            return {
+
+                left: gp.axes[0] < -0.3 || gp.buttons[14].pressed,
+
+                right: gp.axes[0] > 0.3 || gp.buttons[15].pressed,
+
+                shoot: gp.buttons[0].pressed || gp.buttons[1].pressed || gp.buttons[7].pressed
+
+            };
+
+        }
+
+
+
+        class Player {
+
+            constructor() {
+
+                this.w = 30; this.h = 20;
+
+                this.speedBase = 6;
+
+                this.speedLevel = 0;
+
+                this.fireRateLevel = 0;
+
+                this.multiLevel = 0;
+
+                this.respawn();
+
+            }
+
+            respawn() {
+
+                this.x = canvas.width / 2;
+
+                this.y = canvas.height - 60;
+
+                this.cooldown = 0;
+
+                this.invul = 120;
+
+            }
+
+            update() {
+
+                const gp = getGamepadInput();
+
+                const speed = this.speedBase + this.speedLevel;
+
+                
+
+                if (keys['ArrowLeft'] || (gp && gp.left)) this.x -= speed;
+
+                if (keys['ArrowRight'] || (gp && gp.right)) this.x += speed;
+
+                this.x = Math.max(this.w, Math.min(canvas.width - this.w, this.x));
+
+
+
+                if (this.cooldown > 0) this.cooldown--;
+
+                if (this.invul > 0) this.invul--;
+
+
+
+                if ((keys['Space'] || (gp && gp.shoot)) && this.cooldown === 0) {
+
+                    this.fire();
+
+                    this.cooldown = Math.max(5, 12 - this.fireRateLevel * 2);
+
+                }
+
+            }
+
+            fire() {
+
+                if (this.multiLevel === 0) {
+
+                    playerBullets.push(new Bullet(this.x, this.y - 10, -8, '#fff'));
+
+                } else if (this.multiLevel === 1) {
+
+                    playerBullets.push(new Bullet(this.x - 8, this.y - 10, -8, '#fff'));
+
+                    playerBullets.push(new Bullet(this.x + 8, this.y - 10, -8, '#fff'));
+
+                } else {
+
+                    playerBullets.push(new Bullet(this.x, this.y - 10, -8, '#fff'));
+
+                    playerBullets.push(new Bullet(this.x - 15, this.y - 5, -8, '#fff'));
+
+                    playerBullets.push(new Bullet(this.x + 15, this.y - 5, -8, '#fff'));
+
+                }
+
+            }
+
+            draw() {
+
+                if (this.invul > 0 && frameCount % 6 < 3) return;
+
+                ctx.fillStyle = '#fff';
+
+                ctx.fillRect(this.x - 15, this.y, 30, 10);
+
+                ctx.fillRect(this.x - 5, this.y - 8, 10, 8);
+
+                ctx.fillStyle = (this.multiLevel > 0) ? '#22c55e' : '#3b82f6';
+
+                ctx.fillRect(this.x - 10, this.y + 2, 4, 4);
+
+                ctx.fillRect(this.x + 6, this.y + 2, 4, 4);
+
+            }
+
+        }
+
+
+
+        class Bullet {
+
+            constructor(x, y, vy, color) {
+
+                this.x = x; this.y = y; this.vy = vy; this.color = color;
+
+                this.w = 3; this.h = 10;
+
+            }
+
+            update() { this.y += this.vy; }
+
+            draw() {
+
+                ctx.fillStyle = this.color;
+
+                ctx.fillRect(this.x - this.w/2, this.y, this.w, this.h);
+
+            }
+
+        }
+
+
+
+        class PowerUp {
+
+            constructor(x, y) {
+
+                this.x = x; this.y = y;
+
+                let types = [...POWERUP_TYPES];
+
+                if (lives >= 3) types = types.filter(t => t.id !== 'HEALTH');
+
+                
+
+                this.type = types[Math.floor(Math.random() * types.length)];
+
+                this.w = 16; this.h = 16;
+
+                this.vy = 2;
+
+            }
+
+            update() { this.y += this.vy; }
+
+            draw() {
+
+                ctx.fillStyle = this.type.color;
+
+                ctx.fillRect(this.x - 8, this.y - 8, 16, 16);
+
+                ctx.strokeStyle = '#fff';
+
+                ctx.strokeRect(this.x - 8, this.y - 8, 16, 16);
+
+                ctx.fillStyle = '#fff';
+
+                ctx.font = '8px "Press Start 2P"';
+
+                ctx.textAlign = 'center';
+
+                ctx.fillText(this.type.label, this.x, this.y + 4);
+
+            }
+
+        }
+
+
+
+        class Enemy {
+
+            constructor(x, y, level) {
+
+                this.x = x; this.y = y;
+
+                this.w = 24; this.h = 18;
+
+                this.level = level;
+
+                this.dir = 1;
+
+                this.applyDDA();
+
+            }
+
+            applyDDA() {
+
+                const difficultyMod = Math.max(0.15, 1 - (deathCount * 0.2));
+
+                this.speed = (1.2 + this.level * 0.3) * difficultyMod;
+
+                this.fireChance = (0.0025 + (this.level * 0.001)) * difficultyMod;
+
+            }
+
+            update() {
+
+                this.x += this.speed * this.dir;
+
+                if (Math.random() < this.fireChance) {
+
+                    enemyBullets.push(new Bullet(this.x, this.y + 10, 4, THEMES[this.level < 5 ? this.level : 'BOSS'].bullet));
+
+                }
+
+            }
+
+            draw() {
+
+                ctx.fillStyle = THEMES[this.level < 5 ? this.level : 'BOSS'].enemy;
+
+                ctx.fillRect(this.x - 12, this.y - 9, 24, 14);
+
+                ctx.fillStyle = '#000';
+
+                ctx.fillRect(this.x - 8, this.y - 5, 4, 4);
+
+                ctx.fillRect(this.x + 4, this.y - 5, 4, 4);
+
+            }
+
+        }
+
+
+
+        class Boss {
+
+            constructor() {
+
+                this.x = canvas.width / 2;
+
+                this.y = -100;
+
+                this.targetY = 120;
+
+                this.hp = Math.max(5, 45 - (deathCount * 8)); 
+
+                this.maxHp = this.hp;
+
+            }
+
+            update() {
+
+                if (this.y < this.targetY) this.y += 1;
+
+                this.x += Math.sin(frameCount / 40) * 2;
+
+                const difficultyMod = Math.max(0.2, 1 - (deathCount * 0.2));
+
+                if (frameCount % Math.floor(35 / difficultyMod) === 0) {
+
+                    enemyBullets.push(new Bullet(this.x, this.y + 20, 3.5, '#ec4899'));
+
+                    enemyBullets.push(new Bullet(this.x - 30, this.y + 10, 3.5, '#ec4899'));
+
+                    enemyBullets.push(new Bullet(this.x + 30, this.y + 10, 3.5, '#ec4899'));
+
+                }
+
+            }
+
+            draw() {
+
+                const pulse = Math.sin(frameCount / 10) * 5;
+
+                drawPixelHeart(ctx, this.x, this.y, 60 + pulse, '#ec4899');
+
+                ctx.fillStyle = '#222';
+
+                ctx.fillRect(this.x - 50, this.y - 40, 100, 6);
+
+                ctx.fillStyle = '#ec4899';
+
+                ctx.fillRect(this.x - 50, this.y - 40, (this.hp / this.maxHp) * 100, 6);
+
+            }
+
+        }
+
+
+
+        function drawPixelHeart(ctx, x, y, s, color) {
+
+            ctx.fillStyle = color;
+
+            ctx.beginPath();
+
+            ctx.moveTo(x, y + s/4);
+
+            ctx.bezierCurveTo(x, y, x - s, y, x - s, y + s/4);
+
+            ctx.bezierCurveTo(x - s, y + s, x, y + s*1.5, x, y + s*1.8);
+
+            ctx.bezierCurveTo(x, y + s*1.5, x + s, y + s, x + s, y + s/4);
+
+            ctx.bezierCurveTo(x + s, y, x, y, x, y + s/4);
+
+            ctx.fill();
+
+        }
+
+
+
+        let player = new Player();
+
+        let playerBullets = [];
+
+        let enemyBullets = [];
+
+        let powerUps = [];
+
+        let enemies = [];
+
+        let particles = [];
+
+        let boss = null;
+
+
+
+        function initSector(s) {
+
+            sector = s;
+
+            levelText.innerText = `SECTOR: ${s}`;
+
+            enemies = [];
+
+            playerBullets = [];
+
+            enemyBullets = [];
+
+            boss = null;
+
+
+
+            if (s < 5) {
+
+                const cols = Math.max(3, (5 + s) - deathCount);
+
+                const rows = Math.max(2, (1 + Math.floor(s/2) + 1) - deathCount);
+
+                for (let r = 0; r < rows; r++) {
+
+                    for (let c = 0; c < cols; c++) {
+
+                        enemies.push(new Enemy(80 + c * 75, 70 + r * 50, s));
+
+                    }
+
+                }
+
+            } else {
+
+                boss = new Boss();
+
+            }
+
+        }
+
+
+
+        function triggerDeath() {
+
+            deathCount++;
+
+            lives--;
+
+            updateLivesUI();
+
+            
+
+            enemies.forEach(e => e.applyDDA());
+
+            if (boss) boss.hp = Math.max(1, Math.floor(boss.hp * 0.6));
+
+
+
+            createExplosion(player.x, player.y, '#fff');
+
+            player.respawn();
+
+            
+
+            if (lives <= 0) {
+
+                lives = 1;
+
+                updateLivesUI();
+
+            }
+
+        }
+
+
+
+        function updateLivesUI() {
+
+            livesContainer.innerHTML = '';
+
+            for(let i=0; i<lives; i++) {
+
+                const heart = document.createElement('div');
+
+                heart.className = 'w-2 h-2 bg-blue-500';
+
+                livesContainer.appendChild(heart);
+
+            }
+
+        }
+
+
+
+        function createExplosion(x, y, color, isHeart = false) {
+
+            const count = isHeart ? 40 : 12;
+
+            for (let i = 0; i < count; i++) {
+
+                particles.push({
+
+                    x, y, 
+
+                    vx: (Math.random() - 0.5) * (isHeart ? 12 : 6),
+
+                    vy: (Math.random() - 0.5) * (isHeart ? 12 : 6),
+
+                    life: isHeart ? 80 : 30,
+
+                    color,
+
+                    isHeart
+
+                });
+
+            }
+
+        }
+
+
+
+        function update() {
+
+            if (gameState !== 'PLAYING') return;
+
+            frameCount++;
+
+
+
+            player.update();
+
+
+
+            playerBullets.forEach((b, bi) => {
+
+                b.update();
+
+                if (b.y < 0) playerBullets.splice(bi, 1);
+
+
+
+                if (boss) {
+
+                    if (Math.abs(b.x - boss.x) < 50 && Math.abs(b.y - boss.y) < 50) {
+
+                        boss.hp--;
+
+                        playerBullets.splice(bi, 1);
+
+                        createExplosion(b.x, b.y, '#ec4899');
+
+                        if (boss.hp <= 0) {
+
+                            createExplosion(boss.x, boss.y, '#ec4899', true);
+
+                            gameState = 'VICTORY_LAP';
+
+                            setTimeout(() => {
+
+                                gameState = 'PROPOSAL';
+
+                                proposalOverlay.classList.remove('hidden');
+
+                            }, 1800);
+
+                        }
+
+                    }
+
+                }
+
+
+
+                enemies.forEach((e, ei) => {
+
+                    if (Math.abs(b.x - e.x) < 15 && Math.abs(b.y - e.y) < 15) {
+
+                        enemies.splice(ei, 1);
+
+                        playerBullets.splice(bi, 1);
+
+                        score += 100;
+
+                        scoreText.innerText = `DATA: ${score.toString().padStart(4, '0')}`;
+
+                        createExplosion(e.x, e.y, '#fff');
+
+                        if (Math.random() < 0.2) {
+
+                            powerUps.push(new PowerUp(e.x, e.y));
+
+                        }
+
+                    }
+
+                });
+
+            });
+
+
+
+            enemyBullets.forEach((b, bi) => {
+
+                b.update();
+
+                if (b.y > canvas.height) enemyBullets.splice(bi, 1);
+
+                if (player.invul === 0 && Math.abs(b.x - player.x) < 15 && Math.abs(b.y - player.y) < 15) {
+
+                    enemyBullets.splice(bi, 1);
+
+                    triggerDeath();
+
+                }
+
+            });
+
+
+
+            powerUps.forEach((p, pi) => {
+
+                p.update();
+
+                if (p.y > canvas.height) powerUps.splice(pi, 1);
+
+                if (Math.abs(p.x - player.x) < 20 && Math.abs(p.y - player.y) < 20) {
+
+                    if (p.type.id === 'SPEED') player.speedLevel = Math.min(6, player.speedLevel + 1);
+
+                    if (p.type.id === 'FIRE') player.fireRateLevel = Math.min(4, player.fireRateLevel + 1);
+
+                    if (p.type.id === 'MULTI') player.multiLevel = Math.min(2, player.multiLevel + 1);
+
+                    if (p.type.id === 'HEALTH') {
+
+                        if (lives < 3) {
+
+                            lives++;
+
+                            updateLivesUI();
+
+                        }
+
+                    }
+
+                    
+
+                    createExplosion(p.x, p.y, p.type.color);
+
+                    powerUps.splice(pi, 1);
+
+                    score += 50;
+
+                }
+
+            });
+
+
+
+            let hitWall = false;
+
+            enemies.forEach(e => {
+
+                e.update();
+
+                if (e.x > canvas.width - 25 || e.x < 25) hitWall = true;
+
+                if (e.y > player.y - 10) triggerDeath();
+
+            });
+
+
+
+            if (hitWall) {
+
+                enemies.forEach(e => { e.dir *= -1; e.y += 20; });
+
+            }
+
+
+
+            if (enemies.length === 0 && !boss && gameState === 'PLAYING') {
+
+                initSector(sector + 1);
+
+            }
+
+
+
+            if (boss) boss.update();
+
+
+
+            particles.forEach((p, pi) => {
+
+                p.x += p.vx; p.y += p.vy;
+
+                p.life--;
+
+                if (p.life <= 0) particles.splice(pi, 1);
+
+            });
+
+        }
+
+
+
+        function draw() {
+
+            ctx.fillStyle = '#020205';
+
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+
+
+            if (gameState === 'PLAYING' || gameState === 'PROPOSAL' || gameState === 'VICTORY_LAP') {
+
+                player.draw();
+
+                playerBullets.forEach(b => b.draw());
+
+                enemyBullets.forEach(b => b.draw());
+
+                powerUps.forEach(p => p.draw());
+
+                enemies.forEach(e => e.draw());
+
+                if (boss) boss.draw();
+
+                particles.forEach(p => {
+
+                    ctx.globalAlpha = p.life / (p.isHeart ? 80 : 30);
+
+                    if (p.isHeart) {
+
+                        drawPixelHeart(ctx, p.x, p.y, 12, p.color);
+
+                    } else {
+
+                        ctx.fillStyle = p.color;
+
+                        ctx.fillRect(p.x, p.y, 3, 3);
+
+                    }
+
+                    ctx.globalAlpha = 1;
+
+                });
+
+            }
+
+
+
+            requestAnimationFrame(() => {
+
+                update();
+
+                draw();
+
+            });
+
+        }
+
+
+
+        startBtn.addEventListener('click', () => {
+
+            gameState = 'PLAYING';
+
+            menuOverlay.classList.add('hidden');
+
+            initSector(1);
+
+        });
+
+
+
+        window.celebrate = function() {
+
+            proposalOverlay.innerHTML = `
+
+                <div class="text-center p-10 pixel-border border-pink-500 bg-black">
+
+                    <h1 class="text-2xl text-pink-500 mb-6 animate-pulse">MISSION SUCCESS ❤️</h1>
+
+                    <p class="text-[10px] leading-loose text-white mb-4">COORDINATES LOCKED.</p>
+
+                    <p class="text-[10px] leading-loose text-pink-300">I LOVE YOU, AYANA.</p>
+
+                </div>
+
+            `;
+
+            setInterval(() => {
+
+                createExplosion(Math.random() * canvas.width, Math.random() * canvas.height, '#ec4899', true);
+
+            }, 120);
+
+        };
+
+
+
+        draw();
+
+    </script>
+
+</body>
+
+</html>
